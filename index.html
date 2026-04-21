@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренажеры - Личный кабинет</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            width: 400px;
+            padding: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .auth-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+        }
+        
+        .auth-tab.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            margin-bottom: -2px;
+        }
+        
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #48bb78;
+            margin-top: 10px;
+        }
+        
+        .btn-danger {
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: auto;
+            display: inline-block;
+        }
+        
+        .btn-danger:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(229, 62, 62, 0.4);
+        }
+        
+        .btn-success {
+            background: #48bb78;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: auto;
+            display: inline-block;
+        }
+        
+        .btn-success:hover {
+            background: #38a169;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(56, 161, 105, 0.4);
+        }
+        
+        .btn-edit {
+            background: #ed8936;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: auto;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .btn-edit:hover {
+            background: #dd6b20;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(221, 107, 32, 0.4);
+        }
+        
+        .error-message {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            background: #fff5f5;
+            padding: 10px;
+            border-radius: 6px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .success-message {
+            background: #c6f6d5;
+            color: #22543d;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+            font-weight: 500;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .main-content {
+            display: none;
+        }
+        
+        .main-content.active {
+            display: block;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .username {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .logout-btn {
+            padding: 8px 16px;
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .logout-btn:hover {
+            background: #e53e3e;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 6px;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.3s;
+            flex: 1;
+            text-align: center;
+        }
+        
+        .tab:hover {
+            background: #f7fafc;
+        }
+        
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .exercises-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .exercises-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .exercises-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .exercise-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .exercise-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        
+        .exercise-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            padding-right: 30px;
+        }
+        
+        .exercise-category {
+            color: #667eea;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .exercise-type {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .exercise-type.default {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .exercise-type.custom {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            font-size: 16px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+        
+        .delete-btn:hover {
+            background: #e53e3e;
+            transform: scale(1.1);
+        }
+        
+        .add-exercise-form {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-top: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .add-exercise-form h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        /* Стили для статистики */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-height: 180px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .stats-header {
+            padding: 15px 15px 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .stats-exercise-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            word-break: break-word;
+        }
+        
+        .stats-date {
+            font-size: 13px;
+            color: #667eea;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .stats-body {
+            flex: 1;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .stats-details {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .stats-item {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .stats-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+        
+        .stats-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+        
+        .stats-delete-btn {
+            background: #f56565;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .stats-delete-btn:hover {
+            background: #e53e3e;
+            transform: translateY(-1px);
+        }
+        
+        .modal-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .modal-stat-card {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .modal-stat-date {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-align: center;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #e2e8f0;
+        }
+        
+        .modal-stat-details {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .modal-stat-item {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .modal-stat-label {
+            font-size: 11px;
+            color: #999;
+            text-transform: uppercase;
+        }
+        
+        .modal-stat-value {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+            background: white;
+            border-radius: 10px;
+            grid-column: 1 / -1;
+        }
+        
+        .no-exercises {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 16px;
+            background: white;
+            border-radius: 10px;
+            grid-column: 1 / -1;
+        }
+        
+        .modal-no-stats {
+            text-align: center;
+            padding: 30px;
+            color: #999;
+            font-style: italic;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .pagination-btn {
+            background: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .pagination-btn:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+        }
+        
+        .pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .pagination-numbers {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .pagination-number {
+            background: white;
+            border: none;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .pagination-number:hover:not(.active) {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+        }
+        
+        .pagination-number.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 1000px;
+            position: relative;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .close-modal {
+            position: absolute;
+            right: 25px;
+            top: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #999;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: #333;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 15px;
+            padding-right: 30px;
+        }
+        
+        .modal-section {
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+        
+        .modal-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .modal-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-right: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .modal-badge.category {
+            background: #667eea;
+            color: white;
+        }
+        
+        .modal-badge.type {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .modal-badge.type.default {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .modal-badge.type.custom {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .modal-info {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .modal-info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .modal-info-label {
+            font-weight: 600;
+            color: #4a5568;
+            min-width: 100px;
+        }
+        
+        .modal-info-value {
+            color: #667eea;
+            flex: 1;
+            word-break: break-word;
+        }
+        
+        .description-edit-area {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+        
+        .description-edit-area:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .description-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .chart-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 10px;
+            height: 300px;
+            position: relative;
+        }
+        
+        .stats-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-tab {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .stats-tab:hover {
+            background: #667eea;
+            color: white;
+        }
+        
+        .stats-tab.active {
+            background: #667eea;
+            color: white;
+        }
+        
+        .stats-view {
+            display: none;
+        }
+        
+        .stats-view.active {
+            display: block;
+        }
+        
+        .modal-footer-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .exercise-id-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #e2e8f0;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #4a5568;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="successMessage" class="success-message"></div>
+
+        <div id="exerciseModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal" onclick="closeExerciseModal()">&times;</span>
+                <h2 class="modal-title" id="modalExerciseTitle">
+                    Упражнение
+                    <span class="exercise-id-badge" id="modalExerciseIdBadge">ID: -</span>
+                </h2>
+                
+                <div>
+                    <span class="modal-badge category" id="modalExerciseCategory">Категория</span>
+                    <span class="modal-badge type" id="modalExerciseType">Тип</span>
+                </div>
+                
+                <div class="modal-info">
+                    <div class="modal-info-row" id="descriptionRow">
+                        <span class="modal-info-label">Описание</span>
+                        <div style="flex: 1;">
+                            <div id="descriptionDisplay" class="modal-info-value" style="white-space: pre-wrap;"></div>
+                            <div id="descriptionEdit" style="display: none;">
+                                <textarea id="descriptionEditTextarea" class="description-edit-area" rows="4"></textarea>
+                                <div class="description-actions">
+                                    <button class="btn-success" onclick="saveDescription()">💾 Сохранить</button>
+                                    <button class="btn-danger" onclick="cancelEditDescription()">Отмена</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="editDescriptionBtn" class="btn-edit" onclick="startEditDescription()">✏️ Редактировать</button>
+                    </div>
+                </div>
+                
+                <div class="modal-section">
+                    <h3>📊 Статистика выполнения</h3>
+                    
+                    <div class="stats-tabs">
+                        <div class="stats-tab active" onclick="switchStatsView('list')">📋 Список</div>
+                        <div class="stats-tab" onclick="switchStatsView('chart')">📈 График прогресса</div>
+                    </div>
+                    
+                    <div id="statsListView" class="stats-view active">
+                        <div id="modalExerciseStats" class="modal-stats-grid">
+                            <div class="modal-no-stats">Загрузка статистики...</div>
+                        </div>
+                    </div>
+                    
+                    <div id="statsChartView" class="stats-view">
+                        <div class="chart-container">
+                            <canvas id="exerciseChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer-buttons">
+                    <button id="modalDeleteBtn" class="btn-danger" style="display: none;" onclick="deleteExerciseFromModal()">🗑️ Удалить упражнение</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="authContainer" class="auth-container">
+            <div class="auth-card">
+                <div class="auth-tabs">
+                    <div class="auth-tab active" onclick="switchAuthTab('login')">Вход</div>
+                    <div class="auth-tab" onclick="switchAuthTab('register')">Регистрация</div>
+                </div>
+                
+                <div id="loginForm" class="auth-form active">
+                    <div class="form-group">
+                        <label>Имя пользователя</label>
+                        <input type="text" id="loginUsername" placeholder="Введите имя">
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль</label>
+                        <input type="password" id="loginPassword" placeholder="Введите пароль">
+                    </div>
+                    <button class="btn" onclick="login()">Войти</button>
+                    <div id="loginError" class="error-message"></div>
+                </div>
+                
+                <div id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label>Имя пользователя</label>
+                        <input type="text" id="registerUsername" placeholder="Придумайте имя">
+                    </div>
+                    <div class="form-group">
+                        <label>Пароль</label>
+                        <input type="password" id="registerPassword" placeholder="Придумайте пароль">
+                    </div>
+                    <button class="btn" onclick="register()">Зарегистрироваться</button>
+                    <div id="registerError" class="error-message"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="mainContent" class="main-content">
+            <div class="header">
+                <h1>🏋️ Тренажеры</h1>
+                <div class="user-info">
+                    <span class="username" id="currentUsername"></span>
+                    <button class="logout-btn" onclick="logout()">Выйти</button>
+                </div>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('all')">Все упражнения</div>
+                <div class="tab" onclick="switchTab('my')">Мои упражнения</div>
+                <div class="tab" onclick="switchTab('add')">Добавить</div>
+                <div class="tab" onclick="switchTab('stats')">Статистика</div>
+            </div>
+            
+            <div id="allTab" class="tab-content active">
+                <div id="allExercisesList" class="exercises-grid">
+                    <div class="loading">Загрузка упражнений...</div>
+                </div>
+                <div id="allPagination" class="pagination">
+                    <button class="pagination-btn" id="allPrevBtn" onclick="changePage('all', 'prev')">← Назад</button>
+                    <div class="pagination-numbers" id="allPageNumbers"></div>
+                    <button class="pagination-btn" id="allNextBtn" onclick="changePage('all', 'next')">Вперед →</button>
+                </div>
+            </div>
+            
+            <div id="myTab" class="tab-content">
+                <div id="myExercisesList" class="exercises-grid">
+                    <div class="loading">Загрузка ваших упражнений...</div>
+                </div>
+                <div id="myPagination" class="pagination">
+                    <button class="pagination-btn" id="myPrevBtn" onclick="changePage('my', 'prev')">← Назад</button>
+                    <div class="pagination-numbers" id="myPageNumbers"></div>
+                    <button class="pagination-btn" id="myNextBtn" onclick="changePage('my', 'next')">Вперед →</button>
+                </div>
+            </div>
+            
+            <div id="addTab" class="tab-content">
+                <div class="add-exercise-form">
+                    <h3>Добавить свое упражнение</h3>
+                    <div class="form-group">
+                        <label>Название категории</label>
+                        <input type="text" id="newCategoryName" placeholder="Например: Грудь, Спина...">
+                    </div>
+                    <div class="form-group">
+                        <label>Название упражнения</label>
+                        <input type="text" id="newExerciseName" placeholder="Введите название">
+                    </div>
+                    <div class="form-group">
+                        <label>Описание</label>
+                        <textarea id="newExerciseDescription" rows="4" placeholder="Опишите технику выполнения..."></textarea>
+                    </div>
+                    <button class="btn btn-secondary" onclick="addCustomExercise()">➕ Добавить упражнение</button>
+                </div>
+            </div>
+            
+            <div id="statsTab" class="tab-content">
+                <div class="add-exercise-form">
+                    <h3>Добавить статистику выполнения</h3>
+                    <div class="form-group">
+                        <label>Выберите упражнение</label>
+                        <select id="statsExerciseId" required>
+                            <option value="">-- Выберите упражнение --</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Дата выполнения</label>
+                            <input type="date" id="statsDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Вес (кг)</label>
+                            <input type="number" id="statsWeight" min="0" step="1" value="50" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Количество подходов</label>
+                        <input type="number" id="statsApproach" min="1" max="100" value="3" required>
+                    </div>
+                    <button class="btn btn-secondary" onclick="addStats()">➕ Добавить статистику</button>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <h3 style="color: white; margin-bottom: 15px;">Моя статистика</h3>
+                    <div id="statsList" class="stats-grid">
+                        <div class="loading">Загрузка статистики...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:8000';
+        const ITEMS_PER_PAGE = 15;
+        
+        let authToken = localStorage.getItem('authToken') || null;
+        let allExercises = [];
+        let myExercises = [];
+        let currentExercise = null;
+        let allStats = [];
+        let currentChart = null;
+        
+        let currentAllPage = 1;
+        let currentMyPage = 1;
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const datePart = dateString.split('T')[0];
+            const parts = datePart.split('-');
+            if (parts.length !== 3) return dateString;
+            return `${parts[2]}.${parts[1]}.${parts[0]}`;
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = '✅ ' + message;
+            successDiv.classList.add('show');
+            setTimeout(() => successDiv.classList.remove('show'), 3000);
+        }
+
+        function getAuthHeaders() {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            };
+            if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+            }
+            return headers;
+        }
+
+        window.onload = function() {
+            if (authToken) {
+                checkAuth();
+            } else {
+                document.getElementById('authContainer').style.display = 'flex';
+                document.getElementById('mainContent').classList.remove('active');
+            }
+        };
+
+        function switchAuthTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelector('.auth-tab').classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+        }
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            if (tab === 'all') {
+                document.querySelectorAll('.tab')[0].classList.add('active');
+                document.getElementById('allTab').classList.add('active');
+                loadAllExercises();
+            } else if (tab === 'my') {
+                document.querySelectorAll('.tab')[1].classList.add('active');
+                document.getElementById('myTab').classList.add('active');
+                loadMyExercises();
+            } else if (tab === 'add') {
+                document.querySelectorAll('.tab')[2].classList.add('active');
+                document.getElementById('addTab').classList.add('active');
+            } else if (tab === 'stats') {
+                document.querySelectorAll('.tab')[3].classList.add('active');
+                document.getElementById('statsTab').classList.add('active');
+                loadExercisesForSelect();
+                loadStats();
+            }
+        }
+
+        function switchStatsView(view) {
+            document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.stats-view').forEach(v => v.classList.remove('active'));
+            
+            if (view === 'list') {
+                document.querySelectorAll('.stats-tab')[0].classList.add('active');
+                document.getElementById('statsListView').classList.add('active');
+            } else {
+                document.querySelectorAll('.stats-tab')[1].classList.add('active');
+                document.getElementById('statsChartView').classList.add('active');
+                if (currentExercise) {
+                    updateChart(currentExercise.id);
+                }
+            }
+        }
+
+        function updateChart(exerciseId) {
+            const exerciseStats = allStats.filter(stat => stat.exercise_id === exerciseId);
+            
+            if (exerciseStats.length === 0) {
+                return;
+            }
+            
+            exerciseStats.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            const chartData = exerciseStats.map(stat => ({
+                date: formatDate(stat.date),
+                weight: stat.weight,
+                approach: stat.approach
+            }));
+            
+            const maxWeight = Math.max(...chartData.map(d => d.weight), 0);
+            const yMax = maxWeight === 0 ? 100 : Math.ceil(maxWeight * 1.2);
+            
+            const ctx = document.getElementById('exerciseChart').getContext('2d');
+            
+            if (currentChart) {
+                currentChart.destroy();
+            }
+            
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.map(d => d.date),
+                    datasets: [{
+                        label: 'Вес (кг)',
+                        data: chartData.map(d => d.weight),
+                        borderColor: '#667eea',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#48bb78',
+                        pointBorderColor: 'white',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 9,
+                        tension: 0.2,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: { color: '#333', font: { size: 12, weight: 'bold' } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const stat = chartData[index];
+                                    return [`Вес: ${stat.weight} кг`, `Подходы: ${stat.approach}`];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Вес (кг)', color: '#333', font: { weight: 'bold', size: 12 } },
+                            min: 0,
+                            max: yMax,
+                            beginAtZero: true,
+                            grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                            ticks: { stepSize: 10, callback: function(value) { return value + ' кг'; } }
+                        },
+                        x: {
+                            title: { display: true, text: 'Дата', color: '#333', font: { weight: 'bold', size: 12 } },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updatePagination(type, totalItems) {
+            const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+            const currentPage = type === 'all' ? currentAllPage : currentMyPage;
+            const pageNumbersId = type === 'all' ? 'allPageNumbers' : 'myPageNumbers';
+            const prevBtnId = type === 'all' ? 'allPrevBtn' : 'myPrevBtn';
+            const nextBtnId = type === 'all' ? 'allNextBtn' : 'myNextBtn';
+            
+            const pageNumbers = document.getElementById(pageNumbersId);
+            const prevBtn = document.getElementById(prevBtnId);
+            const nextBtn = document.getElementById(nextBtnId);
+            
+            if (!pageNumbers) return;
+            
+            prevBtn.disabled = currentPage === 1;
+            nextBtn.disabled = currentPage === totalPages || totalPages === 0;
+            
+            let numbersHtml = '';
+            for (let i = 1; i <= totalPages; i++) {
+                numbersHtml += `<button class="pagination-number ${i === currentPage ? 'active' : ''}" onclick="goToPage('${type}', ${i})">${i}</button>`;
+            }
+            
+            pageNumbers.innerHTML = numbersHtml;
+            const paginationDiv = type === 'all' ? document.getElementById('allPagination') : document.getElementById('myPagination');
+            paginationDiv.style.display = totalPages <= 1 ? 'none' : 'flex';
+        }
+
+        function goToPage(type, page) {
+            if (type === 'all') {
+                currentAllPage = page;
+                displayPaginatedExercises('all', allExercises);
+            } else {
+                currentMyPage = page;
+                displayPaginatedExercises('my', myExercises);
+            }
+        }
+
+        function changePage(type, direction) {
+            if (type === 'all') {
+                if (direction === 'next' && currentAllPage < Math.ceil(allExercises.length / ITEMS_PER_PAGE)) {
+                    currentAllPage++;
+                    displayPaginatedExercises('all', allExercises);
+                } else if (direction === 'prev' && currentAllPage > 1) {
+                    currentAllPage--;
+                    displayPaginatedExercises('all', allExercises);
+                }
+            } else {
+                if (direction === 'next' && currentMyPage < Math.ceil(myExercises.length / ITEMS_PER_PAGE)) {
+                    currentMyPage++;
+                    displayPaginatedExercises('my', myExercises);
+                } else if (direction === 'prev' && currentMyPage > 1) {
+                    currentMyPage--;
+                    displayPaginatedExercises('my', myExercises);
+                }
+            }
+        }
+
+        function displayPaginatedExercises(type, exercises) {
+            const container = type === 'all' ? document.getElementById('allExercisesList') : document.getElementById('myExercisesList');
+            const currentPage = type === 'all' ? currentAllPage : currentMyPage;
+            const showDeleteForCustom = type === 'all';
+            
+            if (!exercises || exercises.length === 0) {
+                container.innerHTML = '<div class="no-exercises">Упражнений пока нет</div>';
+                updatePagination(type, 0);
+                return;
+            }
+            
+            const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+            const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, exercises.length);
+            const paginatedExercises = exercises.slice(startIndex, endIndex);
+            
+            let html = '';
+            paginatedExercises.forEach(ex => {
+                const typeClass = ex.is_default ? 'default' : 'custom';
+                const typeText = ex.is_default ? 'Стандартное' : 'Пользовательское';
+                
+                html += `
+                    <div class="exercise-card" onclick="openExerciseModal(${ex.id})">
+                        ${!ex.is_default && showDeleteForCustom ? `<button class="delete-btn" onclick="deleteExercise(${ex.id}, event)" title="Удалить упражнение">×</button>` : ''}
+                        <div class="exercise-name">${ex.name}</div>
+                        <div class="exercise-category">${ex.category_name}</div>
+                        <div><span class="exercise-type ${typeClass}">${typeText}</span></div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+            updatePagination(type, exercises.length);
+        }
+
+        function startEditDescription() {
+            document.getElementById('descriptionDisplay').style.display = 'none';
+            document.getElementById('descriptionEdit').style.display = 'block';
+            document.getElementById('editDescriptionBtn').style.display = 'none';
+            document.getElementById('descriptionEditTextarea').value = currentExercise.description || '';
+        }
+
+        function cancelEditDescription() {
+            document.getElementById('descriptionDisplay').style.display = 'block';
+            document.getElementById('descriptionEdit').style.display = 'none';
+            document.getElementById('editDescriptionBtn').style.display = 'inline-block';
+        }
+
+        async function saveDescription() {
+            const newDescription = document.getElementById('descriptionEditTextarea').value;
+            
+            try {
+                const response = await fetch(`${API_URL}/update_exercise_description/${currentExercise.id}`, {
+                    method: 'PUT',
+                    headers: getAuthHeaders(),
+                    credentials: 'include',
+                    body: JSON.stringify({ description: newDescription })
+                });
+                
+                if (response.ok) {
+                    currentExercise.description = newDescription;
+                    document.getElementById('descriptionDisplay').textContent = newDescription || 'Нет описания';
+                    document.getElementById('descriptionDisplay').style.display = 'block';
+                    document.getElementById('descriptionEdit').style.display = 'none';
+                    document.getElementById('editDescriptionBtn').style.display = 'inline-block';
+                    showSuccess('Описание обновлено!');
+                    
+                    const exerciseInAll = allExercises.find(ex => ex.id === currentExercise.id);
+                    if (exerciseInAll) exerciseInAll.description = newDescription;
+                    const exerciseInMy = myExercises.find(ex => ex.id === currentExercise.id);
+                    if (exerciseInMy) exerciseInMy.description = newDescription;
+                } else {
+                    const error = await response.json();
+                    alert(error.detail || 'Ошибка при обновлении описания');
+                }
+            } catch (error) {
+                console.error('Save description error:', error);
+                alert('Ошибка соединения с сервером');
+            }
+        }
+
+        function openExerciseModal(exerciseId) {
+            const exercise = allExercises.find(ex => ex.id === exerciseId);
+            
+            if (exercise) {
+                currentExercise = exercise;
+                
+                document.getElementById('modalExerciseTitle').innerHTML = `${exercise.name} <span class="exercise-id-badge">ID: ${exercise.id}</span>`;
+                document.getElementById('modalExerciseCategory').textContent = exercise.category_name;
+                document.getElementById('modalExerciseType').textContent = exercise.is_default ? 'Стандартное' : 'Пользовательское';
+                document.getElementById('modalExerciseType').className = `modal-badge type ${exercise.is_default ? 'default' : 'custom'}`;
+                document.getElementById('descriptionDisplay').textContent = exercise.description || 'Нет описания';
+                
+                const deleteBtn = document.getElementById('modalDeleteBtn');
+                deleteBtn.style.display = exercise.is_default ? 'none' : 'block';
+                
+                const editBtn = document.getElementById('editDescriptionBtn');
+                editBtn.style.display = exercise.is_default ? 'none' : 'inline-block';
+                
+                loadExerciseStats(exercise.id);
+                document.getElementById('exerciseModal').style.display = 'block';
+            }
+        }
+
+        function closeExerciseModal() {
+            document.getElementById('exerciseModal').style.display = 'none';
+            currentExercise = null;
+            cancelEditDescription();
+        }
+
+        async function loadExerciseStats(exerciseId) {
+            const container = document.getElementById('modalExerciseStats');
+            
+            try {
+                const response = await fetch(`${API_URL}/get_stats`, {
+                    mode: 'cors',
+                    credentials: 'include',
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const stats = await response.json();
+                    allStats = stats;
+                    const exerciseStats = stats.filter(stat => stat.exercise_id === exerciseId);
+                    
+                    if (exerciseStats.length === 0) {
+                        container.innerHTML = '<div class="modal-no-stats">Нет статистики для этого упражнения</div>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    exerciseStats.forEach(stat => {
+                        html += `
+                            <div class="modal-stat-card">
+                                <div class="modal-stat-date">${formatDate(stat.date)}</div>
+                                <div class="modal-stat-details">
+                                    <div class="modal-stat-item">
+                                        <div class="modal-stat-label">Вес</div>
+                                        <div class="modal-stat-value">${stat.weight} кг</div>
+                                    </div>
+                                    <div class="modal-stat-item">
+                                        <div class="modal-stat-label">Подходы</div>
+                                        <div class="modal-stat-value">${stat.approach}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = html;
+                    updateChart(exerciseId);
+                } else {
+                    container.innerHTML = '<div class="modal-no-stats">Ошибка загрузки статистики</div>';
+                }
+            } catch (error) {
+                console.error('Load exercise stats error:', error);
+                container.innerHTML = '<div class="modal-no-stats">Ошибка соединения</div>';
+            }
+        }
+
+        async function loadExercisesForSelect() {
+            try {
+                const response = await fetch(`${API_URL}/get_exercises`, {
+                    mode: 'cors',
+                    credentials: 'include',
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const exercises = await response.json();
+                    const select = document.getElementById('statsExerciseId');
+                    let options = '<option value="">-- Выберите упражнение --</option>';
+                    exercises.forEach(ex => {
+                        options += `<option value="${ex.id}">${ex.name} (${ex.category_name})</option>`;
+                    });
+                    select.innerHTML = options;
+                }
+            } catch (error) {
+                console.error('Load exercises for select error:', error);
+            }
+        }
+
+        async function addStats() {
+            const exerciseId = document.getElementById('statsExerciseId').value;
+            const date = document.getElementById('statsDate').value;
+            const weight = document.getElementById('statsWeight').value;
+            const approach = document.getElementById('statsApproach').value;
+            
+            if (!exerciseId) {
+                alert('Выберите упражнение');
+                return;
+            }
+            
+            if (!date || !weight || !approach) {
+                alert('Заполните все поля');
+                return;
+            }
+            
+            const data = {
+                exercise_id: parseInt(exerciseId, 10),
+                date: date,
+                weight: parseInt(weight, 10),
+                approach: parseInt(approach, 10)
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/add_statistics`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    credentials: 'include',
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showSuccess('Статистика добавлена!');
+                    document.getElementById('statsDate').value = new Date().toISOString().split('T')[0];
+                    document.getElementById('statsWeight').value = 50;
+                    document.getElementById('statsApproach').value = 3;
+                    loadStats();
+                    if (currentExercise) loadExerciseStats(currentExercise.id);
+                } else {
+                    const errorData = await response.json();
+                    let errorMessage = 'Ошибка при добавлении статистики';
+                    if (errorData.detail) {
+                        errorMessage = Array.isArray(errorData.detail) ? errorData.detail.map(err => err.msg).join(', ') : errorData.detail;
+                    }
+                    alert(errorMessage);
+                }
+            } catch (error) {
+                console.error('Add stats error:', error);
+                alert('Ошибка соединения с сервером');
+            }
+        }
+
+        async function deleteStats(statsId, event) {
+            if (event) event.stopPropagation();
+            if (!confirm('Вы уверены, что хотите удалить эту запись статистики?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/delete_stats/${statsId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders(),
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    showSuccess('Запись статистики удалена');
+                    loadStats();
+                    if (currentExercise) loadExerciseStats(currentExercise.id);
+                } else {
+                    const errorData = await response.json();
+                    alert(errorData.detail || 'Ошибка при удалении статистики');
+                }
+            } catch (error) {
+                console.error('Delete stats error:', error);
+                alert('Ошибка соединения с сервером');
+            }
+        }
+
+        async function loadStats() {
+            const container = document.getElementById('statsList');
+            
+            try {
+                const response = await fetch(`${API_URL}/get_stats`, {
+                    mode: 'cors',
+                    credentials: 'include',
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const stats = await response.json();
+                    allStats = stats;
+                    
+                    if (stats.length === 0) {
+                        container.innerHTML = '<div class="no-exercises">У вас пока нет статистики</div>';
+                        return;
+                    }
+                    
+                    let html = '';
+                    stats.forEach(stat => {
+                        html += `
+                            <div class="stats-card">
+                                <div class="stats-header">
+                                    <span class="stats-exercise-name">${stat.exercise_name}</span>
+                                    <span class="stats-date">${formatDate(stat.date)}</span>
+                                </div>
+                                <div class="stats-body">
+                                    <div class="stats-details">
+                                        <div class="stats-item">
+                                            <div class="stats-label">Вес</div>
+                                            <div class="stats-value">${stat.weight} кг</div>
+                                        </div>
+                                        <div class="stats-item">
+                                            <div class="stats-label">Подходы</div>
+                                            <div class="stats-value">${stat.approach}</div>
+                                        </div>
+                                    </div>
+                                    <button class="stats-delete-btn" onclick="deleteStats(${stat.id}, event)">🗑️ Удалить запись</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    container.innerHTML = html;
+                } else if (response.status === 401) {
+                    container.innerHTML = '<div class="no-exercises">Требуется авторизация</div>';
+                } else {
+                    container.innerHTML = '<div class="no-exercises">Ошибка загрузки статистики</div>';
+                }
+            } catch (error) {
+                console.error('Load stats error:', error);
+                container.innerHTML = '<div class="no-exercises">Ошибка соединения</div>';
+            }
+        }
+
+        async function deleteExercise(exerciseId, event) {
+            if (event) event.stopPropagation();
+            if (!confirm('Вы уверены, что хотите удалить это упражнение?')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/delete_exercise/${exerciseId}`, {
+                    method: 'DELETE',
+                    headers: getAuthHeaders(),
+                    mode: 'cors',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    showSuccess('Упражнение удалено');
+                    loadAllExercises();
+                    loadMyExercises();
+                    closeExerciseModal();
+                } else {
+                    const data = await response.json();
+                    alert(data.detail || 'Ошибка при удалении');
+                }
+            } catch (error) {
+                console.error('Delete exercise error:', error);
+                alert('Ошибка соединения с сервером');
+            }
+        }
+
+        function deleteExerciseFromModal() {
+            if (currentExercise) deleteExercise(currentExercise.id);
+        }
+
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${API_URL}/auth/me`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    mode: 'cors',
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const user = await response.json();
+                    document.getElementById('currentUsername').textContent = user.username;
+                    document.getElementById('authContainer').style.display = 'none';
+                    document.getElementById('mainContent').classList.add('active');
+                    loadAllExercises();
+                } else {
+                    authToken = null;
+                    localStorage.removeItem('authToken');
+                    document.getElementById('authContainer').style.display = 'flex';
+                    document.getElementById('mainContent').classList.remove('active');
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+                document.getElementById('authContainer').style.display = 'flex';
+                document.getElementById('mainContent').classList.remove('active');
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('registerUsername').value;
+            const password = document.getElementById('registerPassword').value;
+            
+            if (!username || !password) {
+                alert('Заполните все поля');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    mode: 'cors',
+                    body: JSON.stringify({ username, password })
+                });
+                
+                if (response.ok) {
+                    showSuccess('Регистрация успешна! Теперь войдите.');
+                    switchAuthTab('login');
+                    document.getElementById('loginUsername').value = username;
+                    document.getElementById('loginPassword').value = '';
+                } else {
+                    const data = await response.json();
+                    alert(data.detail || 'Ошибка регистрации');
+                }
+            } catch (error) {
+                console.error('Register error:', error);
+                alert('Ошибка соединения с сервером');
+            }
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                alert('Заполните все поля');
+                return;
+            }
+            
+            const params = new URLSearchParams();
+            params.append('username', username);
+            params.append('password', password);
+            
+            try {
+                const response = await fetch(`${API_URL}/auth/token`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params.toString(),
+                    mode: 'cors',
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const token = data.access_token || data.token || data.accessToken;
+                    
+                    if (token) {
+                        authToken = token;
+                        localStorage.setItem('authToken', token);
+                        showSuccess('Вход выполнен успешно!');
+                        await checkAuth();
+                    } else {
+                        alert('Ошибка: сервер не вернул токен');
+                    }
+                } else {
+                    const data = await response.json();
+                    alert(data.detail || 'Неверные данные');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Ошибка соединения с сервером');
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    credentials: 'include',
+                    headers: getAuthHeaders()
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            } finally {
+                authToken = null;
+                localStorage.removeItem('authToken');
+                document.getElementById('authContainer').style.display = 'flex';
+                document.getElementById('mainContent').classList.remove('active');
+                closeExerciseModal();
+                showSuccess('Выход выполнен');
+            }
+        }
+
+        async function loadAllExercises() {
+            const container = document.getElementById('allExercisesList');
+            
+            try {
+                const response = await fetch(`${API_URL}/get_exercises`, {
+                    mode: 'cors',
+                    credentials: 'include',
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const exercises = await response.json();
+                    allExercises = exercises;
+                    currentAllPage = 1;
+                    displayPaginatedExercises('all', exercises);
+                } else if (response.status === 401) {
+                    authToken = null;
+                    localStorage.removeItem('authToken');
+                    document.getElementById('authContainer').style.display = 'flex';
+                    document.getElementById('mainContent').classList.remove('active');
+                } else {
+                    container.innerHTML = '<div class="no-exercises">Ошибка загрузки упражнений</div>';
+                }
+            } catch (error) {
+                console.error('Load exercises error:', error);
+                container.innerHTML = '<div class="no-exercises">Ошибка соединения с сервером</div>';
+            }
+        }
+
+        async function loadMyExercises() {
+            const container = document.getElementById('myExercisesList');
+            container.innerHTML = '<div class="loading">Загрузка ваших упражнений...</div>';
+            
+            try {
+                const response = await fetch(`${API_URL}/get_exercises`, {
+                    mode: 'cors',
+                    credentials: 'include',
+                    headers: getAuthHeaders()
+                });
+                
+                if (response.ok) {
+                    const exercises = await response.json();
+                    myExercises = exercises.filter(ex => !ex.is_default);
+                    currentMyPage = 1;
+                    displayPaginatedExercises('my', myExercises);
+                } else {
+                    container.innerHTML = '<div class="no-exercises">Ошибка загрузки упражнений</div>';
+                }
+            } catch (error) {
+                console.error('Load my exercises error:', error);
+                container.innerHTML = '<div class="no-exercises">Ошибка соединения</div>';
+            }
+        }
+
+        async function addCustomExercise() {
+            const categoryName = document.getElementById('newCategoryName').value;
+            const exerciseName = document.getElementById('newExerciseName').value;
+            const description = document.getElementById('newExerciseDescription').value;
+            
+            if (!categoryName || !exerciseName) {
+                alert('Заполните название категории и упражнения');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/add-custom-exercise/`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    mode: 'cors',
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        category_name: categoryName,
+                        exercise_name: exerciseName,
+                        description: description,
+                        image_filename: "default_exercise.jpg"
+                    })
+                });
+                
+                if (response.ok) {
+                    showSuccess('Упражнение успешно добавлено!');
+                    document.getElementById('newCategoryName').value = '';
+                    document.getElementById('newExerciseName').value = '';
+                    document.getElementById('newExerciseDescription').value = '';
+                    switchTab('all');
+                    loadAllExercises();
+                } else {
+                    const data = await response.json();
+                    alert(data.detail || 'Ошибка при добавлении');
+                }
+            } catch (error) {
+                console.error('Add exercise error:', error);
+                alert('Ошибка соединения с сервером');
+            }
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('exerciseModal');
+            if (event.target === modal) closeExerciseModal();
+        }
+    </script>
+</body>
+</html>
