@@ -4,18 +4,18 @@
 
 ## Технологии
 
-| Python + FastAPI - REST API
-| PostgreSQL - база данных
-| SQLAlchemy - ORM для работы с БД
-| Pydantic - валидация данных и схемы
-| Git - контроль версий
+| **Python + FastAPI** - REST API
+| **PostgreSQL** - база данных
+| **SQLAlchemy** - ORM для работы с БД
+| **Pydantic** - валидация данных и схемы
+| **Git** - контроль версий
 
 ## Функционал API
 
-| Группы упражнений - `POST /group`
-| Упражнения - `POST /add_exercises`, `GET /get_exercises`, `DELETE /delete_exercise/{id}`, `PUT /update_exercise_description/{id}`
-| Пользовательские упражнения - `POST /add-custom-exercise/`
-| Статистика - `POST /add_statistics`, `GET /get_stats`, `DELETE /delete_stats/{exercise_id}` 
+| **Группы упражнений** - `POST /group`
+| **Упражнения** - `POST /add_exercises`, `GET /get_exercises`, `DELETE /delete_exercise/{id}`, `PUT /update_exercise_description/{id}`
+| **Пользовательские упражнения** - `POST /add-custom-exercise/`
+| **Статистика** - `POST /add_statistics`, `GET /get_stats`, `DELETE /delete_stats/{exercise_id}`
 
 ##  Установка и Запуск
 
